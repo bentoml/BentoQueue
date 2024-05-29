@@ -1,10 +1,6 @@
 import asyncio
-import os
 
-import aioconsole
-
-MQ_URL = os.getenv("RABBITMQ_URL", "amqp://admin:5882352941@184.105.5.135")
-MQ_NAME = os.getenv("REBBITMQ_QUEUE_NAME", "test_queue")
+from service import MQ_URL, MQ_NAME
 
 
 async def main():
@@ -18,14 +14,17 @@ async def main():
         channel: aio_pika.abc.AbstractChannel = await connection.channel()
 
         while True:
-            input_str = await aioconsole.ainput("Enter a message: ")
-            times = int(await aioconsole.ainput("Enter number of times to send: "))
+            input_str = input("Enter message to send: ")
+            times = int(input("Enter number of times to send: "))
+            interval = float(input("Enter interval between messages: "))
 
             for _ in range(times):
                 await channel.default_exchange.publish(
                     aio_pika.Message(body=input_str.encode()),
                     routing_key=MQ_NAME,
                 )
+                print(f"Sent message: {input_str}")
+                await asyncio.sleep(interval)
 
 
 if __name__ == "__main__":
