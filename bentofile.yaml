@@ -1,4 +1,4 @@
-service: "service:CLIP"
+service: "service:StreamApp"
 labels:
   owner: bentoml-team
   project: gallery
@@ -6,3 +6,17 @@ include:
 - "*.py"
 python:
   requirements_txt: "./requirements.txt"
+envs:
+  - name: RABBITMQ_URL
+  - name: REBBITMQ_QUEUE_NAME
+    value: test_queue
+  - name: S3_ENDPOINT_URL
+    value: https://s3.us-west-1.amazonaws.com
+  - name: S3_REGION_NAME
+    value: us-west-1
+  - name: S3_ACCESS_KEY
+  - name: S3_SECRET_KEY
+  - name: S3_BUCKET_NAME
+    value: neurolab-poc
+  - name: SCHEDULE_CONCURRENCY
+    value: 1000
