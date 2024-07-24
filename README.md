@@ -1,27 +1,57 @@
 <div align="center">
-    <h1 align="center">Serving CLIP with BentoML</h1>
+    <h1 align="center">Using BentoML as a Queue Consumer</h1>
 </div>
 
-[CLIP (Contrastive Language–Image Pre-training)](https://openai.com/research/clip) is a machine learning model developed by OpenAI. It is versatile and excels in tasks like zero-shot learning, image classification, and image-text matching without needing specific training for each task.
+This project demonstrates how to use BentoML as a Queue Consumer, enabling push-based inference instead of the traditional pull-based inference (i.e., HTTP Request). Specifically, this project utilizes [RabbitMQ](https://www.rabbitmq.com/) as a queue and [Amazon S3](https://aws.amazon.com/s3/) for artifact storage.
 
-This is a BentoML example project, demonstrating how to build a CLIP inference API server, using the [clip-vit-base-patch32](https://huggingface.co/openai/clip-vit-base-patch32) model. See [here](https://github.com/bentoml/BentoML?tab=readme-ov-file#%EF%B8%8F-what-you-can-build-with-bentoml) for a full list of BentoML example projects.
+The Bento service listens for messages published to RabbitMQ. When a message is published (containing an image URL to S3), the Bento service downloads the image, processes it using a [CLIP model](https://github.com/openai/CLIP), and saves the output back to S3.
+
+<div align="center">
+    <img src="architecture.png" alt="Architecture Diagram" width="600">
+</div>
+
 
 ## Prerequisites
-
 - You have installed Python 3.8+ and `pip`. See the [Python downloads page](https://www.python.org/downloads/) to learn more.
 - You have a basic understanding of key concepts in BentoML, such as Services. We recommend you read [Quickstart](https://docs.bentoml.com/en/1.2/get-started/quickstart.html) first.
 - (Optional) We recommend you create a virtual environment for dependency isolation for this project. See the [Conda documentation](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or the [Python documentation](https://docs.python.org/3/library/venv.html) for details.
+- You need Docker installed to set up RabbitMQ. See the [Docker documentation](https://docs.docker.com/get-docker/) for installation instructions.
+- You need an AWS account to use Amazon S3. See the [AWS documentation](https://aws.amazon.com/s3/) for more information.
+
 
 ## Install dependencies
 
-```bash
-git clone https://github.com/bentoml/BentoClip.git
-cd BentoClip
+### Installing RabbitMQ
+```
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+```
+### Installing Python Dependencies
+```
+git clone https://github.com/bentoml/neurolabs-stream.git
+cd neurolabs-stream
 pip install -r requirements.txt
 ```
+### Setup S3 Bucket
+- Log in to your AWS Management Console.
+- Navigate to the S3 service.
+- Click on "Create bucket".
+- Enter a unique bucket name (e.g., `bento-queue`).
+- Choose the AWS region (e.g., `us-west-1`).
+- Leave the default settings for the rest of the options and click "Create bucket".
 
-## Run the BentoML Service
+In your S3 bucket, you should have some images inside that can be downloaded for this project.
 
+## Setup Environment Variables
+```bash
+export RABBITMQ_URL="amqp://guest:guest@localhost:5672/"
+export S3_ACCESS_KEY=<your-s3-access-key>
+export S3_SECRET_KEY=<your-s3-secret-key>
+
+```
+
+## Run the Service
+
+### Run BentoML Service
 We have defined a BentoML Service in `service.py`. Run `bentoml serve` in your project directory to start the Service.
 
 ```bash
@@ -32,32 +62,13 @@ $ bentoml serve .
 Model clip loaded device: cuda
 ```
 
-The Service is accessible at [http://localhost:3000](http://localhost:3000/). You can interact with it using the Swagger UI or in other different ways:
-
-CURL
-
-```bash
-curl -s \
-     -X POST \
-     -F 'items=@demo.jpg' \
-     http://localhost:3000/encode_image
+### Produce Message to the Queue
 ```
-
-Python client
-
-```python
-import bentoml
-from pathlib import Path
-
-with bentoml.SyncHTTPClient("http://localhost:3000") as client:
-    result = client.encode_image(
-        items=[
-            Path("demo.jpg"),
-        ],
-    )
+python producer.py
 ```
+You will be prompted to input a mesage to the queue, input the following and replace the images link in your S3 bucket respectively.
+`[{"key": "images/my_image.png"}]`
 
-For detailed explanations of the Service code, see [CLIP embeddings](https://docs.bentoml.org/en/latest/use-cases/embeddings/clip-embeddings.html).
 
 ## Deploy to BentoCloud
 

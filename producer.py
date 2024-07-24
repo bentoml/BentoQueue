@@ -15,16 +15,12 @@ async def main():
 
         while True:
             input_str = input("Enter message to send: ")
-            times = int(input("Enter number of times to send: "))
-            interval = float(input("Enter interval between messages: "))
 
-            for _ in range(times):
-                await channel.default_exchange.publish(
-                    aio_pika.Message(body=input_str.encode()),
-                    routing_key=MQ_NAME,
-                )
-                print(f"Sent message: {input_str}")
-                await asyncio.sleep(interval)
+            await channel.default_exchange.publish(
+                aio_pika.Message(body=input_str.encode()),
+                routing_key=MQ_NAME,
+            )
+            print(f"Sent message: {input_str}")
 
 
 if __name__ == "__main__":

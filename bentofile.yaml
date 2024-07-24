@@ -17,6 +17,6 @@ envs:
   - name: S3_ACCESS_KEY
   - name: S3_SECRET_KEY
   - name: S3_BUCKET_NAME
-    value: neurolab-poc
+    value: bento-queue
   - name: SCHEDULE_CONCURRENCY
     value: 1000

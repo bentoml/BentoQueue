@@ -18,7 +18,7 @@ S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL", "https://s3.us-west-1.amazonaws.c
 S3_REGION_NAME = os.getenv("S3_REGION_NAME", "us-west-1")
 S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "")
 S3_SECRET_KEY = os.getenv("S3_SECRET_KEY", "")
-S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "neurolab-poc")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "bento-queue")
 
 
 MODEL_ID = "openai/clip-vit-base-patch32"
@@ -108,9 +108,9 @@ class StreamApp:
                 )
                 assert result
                 print("Result:", result)
-                message.ack()
+                await message.ack()
             except Exception as e:
-                message.reject()
+                await message.reject()
                 print("Error:", e)
 
     async def main(self, loop):
@@ -121,8 +121,10 @@ class StreamApp:
             print("Connected to RabbitMQ")
 
             async with connection:
+                print("hello")
                 channel: aio_pika.abc.AbstractChannel = await connection.channel()
-
+                print("Channel created")
+                print(MQ_NAME)
                 queue: aio_pika.abc.AbstractQueue = await channel.declare_queue(
                     MQ_NAME,
                     auto_delete=True,
@@ -139,5 +141,30 @@ class StreamApp:
                             body_str = message.body.decode()
                             body = json.loads(body_str)
                             loop.create_task(self.consume(body, message))
+        except Exception as e:
+            print("Error:", e)
         finally:
             sys.exit(1)
+
+
+#%%
+# import async
+# import aio_pika
+# MQ_URL = "amqp://guest:guest@localhost:5672/"
+# MQ_NAME = "test_queue"
+# loop = asyncio.get_event_loop()
+# connection = await aio_pika.connect_robust(MQ_URL, loop=loop)
+# print("Connected to RabbitMQ")
+
+# async with connection:
+#     print("hello")
+#     channel: aio_pika.abc.AbstractChannel = await connection.channel()
+#     print("Channel created")
+#     print(MQ_NAME)
+#     queue: aio_pika.abc.AbstractQueue = await channel.declare_queue(
+#         MQ_NAME,
+#         auto_delete=True,
+#     )
+#     print("Queue declared")
+
+# %%
