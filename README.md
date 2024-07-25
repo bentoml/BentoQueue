@@ -27,8 +27,8 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 ```
 ### Installing Python Dependencies
 ```
-git clone https://github.com/bentoml/neurolabs-stream.git
-cd neurolabs-stream
+git clone https://github.com/bentoml/BentoQueue.git
+cd BentoQueue
 pip install -r requirements.txt
 ```
 ### Setup S3 Bucket
