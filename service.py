@@ -121,10 +121,8 @@ class StreamApp:
             print("Connected to RabbitMQ")
 
             async with connection:
-                print("hello")
                 channel: aio_pika.abc.AbstractChannel = await connection.channel()
                 print("Channel created")
-                print(MQ_NAME)
                 queue: aio_pika.abc.AbstractQueue = await channel.declare_queue(
                     MQ_NAME,
                     auto_delete=True,
@@ -145,26 +143,3 @@ class StreamApp:
             print("Error:", e)
         finally:
             sys.exit(1)
-
-
-#%%
-# import async
-# import aio_pika
-# MQ_URL = "amqp://guest:guest@localhost:5672/"
-# MQ_NAME = "test_queue"
-# loop = asyncio.get_event_loop()
-# connection = await aio_pika.connect_robust(MQ_URL, loop=loop)
-# print("Connected to RabbitMQ")
-
-# async with connection:
-#     print("hello")
-#     channel: aio_pika.abc.AbstractChannel = await connection.channel()
-#     print("Channel created")
-#     print(MQ_NAME)
-#     queue: aio_pika.abc.AbstractQueue = await channel.declare_queue(
-#         MQ_NAME,
-#         auto_delete=True,
-#     )
-#     print("Queue declared")
-
-# %%
