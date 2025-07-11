@@ -66,7 +66,7 @@ Model clip loaded device: cuda
 ```
 python producer.py
 ```
-You will be prompted to input a mesage to the queue, input the following and replace the images link in your S3 bucket respectively.
+You will be prompted to input a message to the queue, input the following and replace the images link in your S3 bucket respectively.
 `[{"key": "images/my_image.png"}]`
 
 
