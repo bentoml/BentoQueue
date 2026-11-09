@@ -1,7 +1,7 @@
 bentoml>=1.2.2
-pillow==10.2.0
-torch==2.1.2
-transformers==4.37.1
+pillow==12.2.0
+torch==2.8.0
+transformers==5.0.0rc3
 aio-pika
 boto3
 pathlib
